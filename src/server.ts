@@ -1,42 +1,81 @@
-
-import { resolve } from 'node:path'
 import Fastify from 'fastify'
+import fp from 'fastify-plugin'
+
+// Import library to exit fastify process, gracefully (if possible)
+import closeWithGrace from 'close-with-grace'
+
+// Import your application as a normal plugin.
+import serviceApp from './app.js'
 import FastifyVite from '@fastify/vite'
+import { resolve } from 'path'
 
 
-export async function main(dev?: boolean) {
-  const server = Fastify({
-    logger: {
+function getLoggerOptions() {
+  // Only if the program is running in an interactive terminal
+  if (process.stdout.isTTY) {
+    return {
+      level: 'info',
       transport: {
-        target: '@fastify/one-line-logger'
+        target: 'pino-pretty',
+        options: {
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname'
+        }
       }
     }
-  })
+  }
 
-  await server.register(FastifyVite, {
-    // The compiled server will live in <root>/build which is the same depth as <root>/src,
-    // so we can use import.meta.dirname here
+  return { level: process.env.LOG_LEVEL ?? 'silent' }
+}
+
+const app = Fastify({
+  logger: getLoggerOptions(),
+  ajv: {
+    customOptions: {
+      coerceTypes: 'array', // change type of data to match type keyword
+      removeAdditional: 'all' // Remove additional body properties
+    }
+  }
+})
+
+async function init() {
+  // Register your application as a normal plugin.
+  // fp must be used to override default error handler
+  app.register(fp(serviceApp))
+
+  await app.register(FastifyVite, {
     root: resolve(import.meta.dirname, '..'),
     distDir: resolve(import.meta.dirname, '..', 'build'), // Must match build.outDir in Vite config
-    dev: dev || process.argv.includes('--dev'),
+    dev: process.argv.includes('--dev'),
     spa: true,
   })
 
-  server.get('/', (req, reply) => {
+  app.get('/', async function (req, reply) {
     return reply.html()
   })
 
-  server.get('/ping', (req, reply) => {
-    return {
-      status: "OK"
+  // Delay is the number of milliseconds for the graceful close to finish
+  closeWithGrace(
+    //@ts-ignore
+    { delay: process.env.FASTIFY_CLOSE_GRACE_DELAY ?? 500 },
+    async ({ err }) => {
+      if (err != null) {
+        app.log.error(err)
+      }
+
+      await app.close()
     }
-  })
+  )
+  await app.vite.ready()
+  await app.ready()
 
-  await server.vite.ready()
-  return server
+  try {
+    // Start listening.
+    await app.listen({ port: 3000, host: '0.0.0.0' })
+  } catch (err) {
+    app.log.error(err)
+    process.exit(1)
+  }
 }
 
-if (process.argv[1] === import.meta.filename) {
-  const server = await main()
-  await server.listen({ port: 3000, host: '0.0.0.0' })
-}
+init()
