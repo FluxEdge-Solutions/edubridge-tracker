@@ -18,7 +18,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/your-app
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
@@ -32,8 +32,8 @@ jobs:
       - name: Deploy on VPS
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT || 22 }} << 'EOF'
-            docker pull yourdockerhubusername/your-app:latest
-            docker stop my-node-app || true
-            docker rm my-node-app || true
-            docker run -d -p 3000:3000 --name my-node-app yourdockerhubusername/your-app:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
+            docker stop edubridge-tracker-app || true
+            docker rm edubridge-tracker-app || true
+            docker run -d -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker:latest
           EOF
