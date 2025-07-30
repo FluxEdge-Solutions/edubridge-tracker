@@ -68,7 +68,7 @@ async function init() {
   )
   await app.vite.ready()
   await app.ready()
-
+  
   try {
     // Start listening.
     await app.listen({ port: 3000, host: '0.0.0.0' })
