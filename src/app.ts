@@ -22,10 +22,10 @@ export default async function serviceApp(
     delete opts.skipOverride // This option only serves testing purpose
     // This loads all external plugins defined in plugins/external
     // those should be registered first as your application plugins might depend on them
-    // await fastify.register(fastifyAutoload, {
-    //     dir: path.join(import.meta.dirname, 'plugins/external'),
-    //     options: { ...opts }
-    // })
+    await fastify.register(fastifyAutoload, {
+        dir: path.join(import.meta.dirname, 'plugins/external'),
+        options: { ...opts }
+    })
 
     // This loads all your application plugins defined in plugins/app
     // those should be support plugins that are reused
