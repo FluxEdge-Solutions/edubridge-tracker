@@ -1,10 +1,6 @@
 import Fastify from 'fastify'
 import fp from 'fastify-plugin'
-
-// Import library to exit fastify process, gracefully (if possible)
 import closeWithGrace from 'close-with-grace'
-
-// Import your application as a normal plugin.
 import serviceApp from './app.js'
 import FastifyVite from '@fastify/vite'
 import { resolve } from 'path'
@@ -53,6 +49,7 @@ async function init() {
   app.get('/', async function (req, reply) {
     return reply.html()
   })
+
 
   // Delay is the number of milliseconds for the graceful close to finish
   closeWithGrace(
