@@ -4,6 +4,7 @@ declare module 'fastify' {
   export interface FastifyInstance {
     config: {
       PORT: number;
+      COOKIE_SECRET:string;
       COOKIE_NAME: string;
       COOKIE_SECURED: boolean;
       RATE_LIMIT_MAX: number;
