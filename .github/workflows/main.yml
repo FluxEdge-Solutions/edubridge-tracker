@@ -33,8 +33,8 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT || 22 }} << 'EOF'
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
-            docker stop edubridge-tracker-app || true
-            docker rm edubridge-tracker-app || true
+            docker stop edubridge-tracker || true
+            docker rm edubridge-tracker || true
             docker run -d -p 3000:3000 \
               -e PG_CONNECTION_STRING = ${{ secrets.PG_CONNECTION_STRING }} \
               -e COOKIE_SECRET = ${{ secrets.COOKIE_SECRET }} \
