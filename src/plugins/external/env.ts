@@ -4,12 +4,6 @@ declare module 'fastify' {
   export interface FastifyInstance {
     config: {
       PORT: number;
-      MYSQL_HOST: string;
-      MYSQL_PORT: string;
-      MYSQL_USER: string;
-      MYSQL_PASSWORD: string;
-      MYSQL_DATABASE: string;
-      COOKIE_SECRET: string;
       COOKIE_NAME: string;
       COOKIE_SECURED: boolean;
       RATE_LIMIT_MAX: number;
@@ -22,35 +16,16 @@ declare module 'fastify' {
 const schema = {
   type: 'object',
   required: [
-    'MYSQL_HOST',
-    'MYSQL_PORT',
-    'MYSQL_USER',
-    'MYSQL_PASSWORD',
-    'MYSQL_DATABASE',
+    'PG_CONNECTION_STRING',
     'COOKIE_SECRET',
     'COOKIE_NAME',
     'COOKIE_SECURED'
   ],
   properties: {
     // Database
-    MYSQL_HOST: {
-      type: 'string',
-      default: 'localhost'
-    },
-    MYSQL_PORT: {
-      type: 'number',
-      default: 3306
-    },
-    MYSQL_USER: {
+    PG_CONNECTION_STRING: {
       type: 'string'
     },
-    MYSQL_PASSWORD: {
-      type: 'string'
-    },
-    MYSQL_DATABASE: {
-      type: 'string'
-    },
-
     // Security
     COOKIE_SECRET: {
       type: 'string'

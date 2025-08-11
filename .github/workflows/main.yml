@@ -21,6 +21,7 @@ jobs:
           IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -31,8 +32,23 @@ jobs:
       - name: Deploy on VPS
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT || 22 }} << 'EOF'
+            # Create .env file from GitHub Secrets
+            cat > /home/${{ secrets.VPS_USERNAME }}/edubridge-tracker.env <<EENV DATABASE_URL=${{ secrets.DATABASE_URL }}
+                  NODE_ENV=production
+                  PG_CONNECTION_STRING = ${{ secrets.PG_CONNECTION_STRING }}
+                  COOKIE_SECRET = ${{ secrets.COOKIE_SECRET }}
+                  COOKIE_NAME = ${{ secrets.COOKIE_NAME}}
+                  COOKIE_SECURED = ${{ secrets.COOKIE_SECURED }}
+                  RATE_LIMIT_MAX = ${{ secrets.RATE_LIMIT_MAX }}
+            EENV
+
+            # Deploy container
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
-            docker stop edubridge-tracker-app || true
-            docker rm edubridge-tracker-app || true
-            docker run -d -p 3000:3000 ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker:latest
+            docker stop edubridge-tracker || true
+            docker rm edubridge-tracker || true
+            docker run -d \
+              --name edubridge-tracker \
+              --env-file /home/${{ secrets.VPS_USERNAME }}/edubridge-tracker.env \
+              -p 3000:3000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker:latest
           EOF
