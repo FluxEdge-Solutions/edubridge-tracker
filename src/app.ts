@@ -69,29 +69,29 @@ export default async function serviceApp(
     })
 
     // An attacker could search for valid URLs if your 404 error handling is not rate limited.
-    // fastify.setNotFoundHandler(
-    //     {
-    //         preHandler: fastify.rateLimit({
-    //             max: 3,
-    //             timeWindow: 500
-    //         })
-    //     },
-    //     (request, reply) => {
-    //         request.log.warn(
-    //             {
-    //                 request: {
-    //                     method: request.method,
-    //                     url: request.url,
-    //                     query: request.query,
-    //                     params: request.params
-    //                 }
-    //             },
-    //             'Resource not found'
-    //         )
+    fastify.setNotFoundHandler(
+        {
+            preHandler: fastify.rateLimit({
+                max: 3,
+                timeWindow: 500
+            })
+        },
+        (request, reply) => {
+            request.log.warn(
+                {
+                    request: {
+                        method: request.method,
+                        url: request.url,
+                        query: request.query,
+                        params: request.params
+                    }
+                },
+                'Resource not found'
+            )
 
-    //         reply.code(404)
+            reply.code(404)
 
-    //         return { message: 'Not Found' }
-    //     })
+            return { message: 'Not Found' }
+        })
 }
 

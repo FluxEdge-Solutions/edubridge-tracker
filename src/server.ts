@@ -5,7 +5,6 @@ import serviceApp from './app.js'
 import FastifyVite from '@fastify/vite'
 import { resolve } from 'path'
 
-
 function getLoggerOptions() {
   // Only if the program is running in an interactive terminal
   if (process.stdout.isTTY) {
@@ -65,7 +64,7 @@ async function init() {
   )
   await app.vite.ready()
   await app.ready()
-  
+
   try {
     // Start listening.
     await app.listen({ port: 3000, host: '0.0.0.0' })
