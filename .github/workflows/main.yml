@@ -33,14 +33,12 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT || 22 }} << 'EOF'
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker
-            docker stop edubridge-tracker || true
-            docker rm edubridge-tracker || true
             docker run -d -p 3000:3000 \
               -e PG_CONNECTION_STRING=${{ secrets.PG_CONNECTION_STRING }} \
               -e COOKIE_SECRET=${{ secrets.COOKIE_SECRET }} \
-              -e COOKIE_NAME=${{ secrets.COOKIE_NAME}} \
+              -e COOKIE_NAME=${{ secrets.COOKIE_NAME }} \
               -e COOKIE_SECURED=${{ secrets.COOKIE_SECURED }} \
               -e RATE_LIMIT_MAX=${{ secrets.RATE_LIMIT_MAX }} \
               -e NODE_ENV=production \
-            ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker:latest
-          EOF
+              --name tracker \
+              ${{ secrets.DOCKERHUB_USERNAME }}/edubridge-tracker:latest
