@@ -33,9 +33,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p ${{ secrets.VPS_PORT || 22 }} ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Set up Docker Compose
-        uses: docker/setup-docker@v4
-
       - name: Deploy on VPS
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT || 22 }} << 'EOF'
