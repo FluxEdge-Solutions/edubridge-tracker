@@ -8,7 +8,11 @@
     "build:client": "vite build",
     "build:server": "tsc",
     "lint": "oxlint",
-    "test": "tsx --test"
+    "test": "tsx --test",
+    "db:create": "tsx --env-file=.env ./scripts/create-database.ts",
+    "db:drop": "tsx --env-file=.env ./scripts/drop-database.ts",
+    "db:migrate": "tsx --env-file=.env ./scripts/migrate.ts",
+    "db:seed": "tsx --env-file=.env ./scripts/seed-database.ts"
   },
   "dependencies": {
     "@fastify/autoload": "^6.3.1",
@@ -36,6 +40,7 @@
     "knex": "^3.1.0",
     "lucide-react": "^0.534.0",
     "pg": "^8.16.3",
+    "postgrator": "^8.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwind-merge": "^3.3.1",
@@ -43,6 +48,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.17",
+    "@types/pg": "^8.15.5",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.7.0",

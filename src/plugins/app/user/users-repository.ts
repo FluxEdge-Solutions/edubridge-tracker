@@ -1,5 +1,5 @@
 import { type FastifyInstance } from 'fastify';
-import { Knex } from 'knex'
+import { type Knex } from 'knex'
 import fp from 'fastify-plugin'
 import type { Auth } from '../../../schemas/auth.js';
 
