@@ -11,7 +11,6 @@ declare module 'fastify' {
     }
 }
 
-
 type CreateSchool = Static<typeof CreateSchoolSchema>
 interface UpdateSchool extends Static<typeof UpdateSchoolSchema> {
     logo_url?: string
@@ -19,29 +18,30 @@ interface UpdateSchool extends Static<typeof UpdateSchoolSchema> {
 
 export function createSchoolRepository(fastify: FastifyInstance) {
     const knex = fastify.knex;
+    const TABLENAME = "schools_on"
 
     return {
         async findSchoolByBaseUrl(baseUrl: string) {
-            return knex<School>("schools_on")
+            return knex<School>(TABLENAME)
                 .select("id", "name", "base_url", "logo_url", "date_onboard")
                 .where({ base_url: baseUrl })
                 .first()
         },
 
         async findSchoolById(id: number) {
-            return knex<School>("schools_on")
+            return knex<School>(TABLENAME)
                 .select("id", "name", "base_url", "logo_url", "date_onboard")
                 .where({ id })
                 .first()
         },
 
         async findSchools() {
-            return knex<School>("schools_on")
+            return knex<School>(TABLENAME)
                 .select("id", "name", "base_url", "logo_url", "date_onboard")
         },
 
         async updateSchool(newSchool: UpdateSchool, id: number, trx?: Knex) {
-            const affectedRows = await (trx ?? knex)("schools_on").where({ id }).update(newSchool)
+            const affectedRows = await (trx ?? knex)(TABLENAME).where({ id }).update(newSchool)
 
             if (affectedRows === 0) {
                 return null
@@ -51,13 +51,35 @@ export function createSchoolRepository(fastify: FastifyInstance) {
         },
 
         async removeSchool(id: string) {
-            return knex("schools_on").where({ id }).delete()
+            return knex(TABLENAME).where({ id }).delete()
+        },
+
+        async findByFilename(filename: string) {
+            return knex(TABLENAME)
+                .select("logo_url")
+                .where({ logo_url: filename })
+                .first()
         },
 
         async create(school: CreateSchool) {
-            const id = await knex("schools_on").insert(school)
+            const id = await knex(TABLENAME).insert(school)
             return id
+        },
+
+        async deleteFilename(filename: string, value: string | null, trx: Knex) {
+            const affectedRows = await trx(TABLENAME)
+                .where({ filename })
+                .update({ filename: value })
+
+            return affectedRows > 0
+        },
+
+        async delete(id: number) {
+            const affectedRows = await knex<School>(TABLENAME).where({ id }).delete()
+
+            return affectedRows > 0
         }
+
     }
 }
 

@@ -1,5 +1,5 @@
 import { type Static, Type } from '@sinclair/typebox'
-import { StringSchema, IdSchema, DateSchema } from './common.js'
+import { StringSchema, IdSchema } from './common.js'
 
 export const SchoolSchema = Type.Object({
     id: IdSchema,

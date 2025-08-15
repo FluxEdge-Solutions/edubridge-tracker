@@ -17,7 +17,7 @@ function createUploader(fastify: FastifyInstance) {
         import.meta.dirname,
         '../../../..',
         fastify.config.UPLOAD_DIRNAME,
-        fastify.config.UPLOAD_TASKS_DIRNAME
+        fastify.config.UPLOAD_SCHOOL_DIRNAME
     )
 
     const tempPath = path.join(uploadPath, 'temp')
@@ -61,7 +61,7 @@ function createUploader(fastify: FastifyInstance) {
 }
 
 export default fp(async (fastify) => {
-    fastify.decorate('tasksFileManager', createUploader(fastify))
+    fastify.decorate('schoolFileManager', createUploader(fastify))
 }, {
     name: 'school-file-manager',
     dependencies: ['file-manager']

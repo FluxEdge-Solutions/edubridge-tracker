@@ -3,9 +3,10 @@ import {
     Type
 } from '@fastify/type-provider-typebox'
 import { CreateSchoolSchema, UpdateSchoolSchema } from '../../../schemas/school.js'
+import path from 'path'
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
-    const { schoolRepository, schoolFileManager } = fastify
+    const { schoolRepository, schoolFileManager, fileManager } = fastify
 
     fastify.post("/", {
         schema: {
@@ -81,6 +82,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
                 message: "School updated successfully"
             }
         }),
+
         fastify.post(
             '/:id/upload',
             {
@@ -96,7 +98,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
                         404: Type.Object({ message: Type.String() }),
                         400: Type.Object({ message: Type.String() })
                     },
-                    tags: ['Tasks']
+                    tags: ['Schools']
                 }
             },
             async function (request, reply) {
@@ -129,7 +131,10 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
 
                 return fastify.knex
                     .transaction(async (trx) => {
-                        const newFilename = `${id}_${file.filename}`
+                        const fileNameSplit = file.filename.split(".");
+                        const fileExtension = fileNameSplit[fileNameSplit.length - 1];
+
+                        const newFilename = `${fileManager.randomSuffix()}.${fileExtension}`
                         await schoolRepository.updateSchool({ logo_url: newFilename }, id, trx)
 
                         await schoolFileManager.upload(newFilename, file)
@@ -145,6 +150,72 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
                     })
             }
         )
+
+    fastify.get(
+        '/:id/image',
+        {
+            schema: {
+                params: Type.Object({
+                    id: Type.Number()
+                }),
+                response: {
+                    200: { type: 'string', contentMediaType: 'image/*' },
+                    404: Type.Object({ message: Type.String() })
+                },
+                tags: ['Schools']
+            }
+        },
+        async function (request, reply) {
+            const { id } = request.params
+
+            const school = await schoolRepository.findSchoolById(id)
+            if (!school) {
+                return reply.notFound(`School not found`)
+            }
+
+            return reply.sendFile(
+                school.logo_url as string,
+                path.join(
+                    fastify.config.UPLOAD_DIRNAME,
+                    fastify.config.UPLOAD_SCHOOL_DIRNAME
+                )
+            )
+        }
+    )
+
+    fastify.delete(
+        '/:filename/image',
+        {
+            schema: {
+                params: Type.Object({
+                    filename: Type.String()
+                }),
+                response: {
+                    204: Type.Null(),
+                    404: Type.Object({ message: Type.String() })
+                },
+                tags: ['Schools']
+            }
+        },
+        async function (request, reply) {
+            const { filename } = request.params
+
+            return fastify.knex
+                .transaction(async (trx) => {
+                    const hasBeenUpdated = await schoolRepository.deleteFilename(filename, null, trx)
+
+                    if (!hasBeenUpdated) {
+                        return reply.notFound(`No school has filename "${filename}"`)
+                    }
+
+                    await schoolFileManager.delete(filename)
+
+                    reply.code(204)
+
+                    return { message: 'File deleted successfully' }
+                })
+        }
+    )
 
 }
 

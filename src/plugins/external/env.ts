@@ -4,12 +4,12 @@ declare module 'fastify' {
   export interface FastifyInstance {
     config: {
       PORT: number;
-      COOKIE_SECRET:string;
+      COOKIE_SECRET: string;
       COOKIE_NAME: string;
       COOKIE_SECURED: boolean;
       RATE_LIMIT_MAX: number;
       UPLOAD_DIRNAME: string;
-      UPLOAD_TASKS_DIRNAME: string;
+      UPLOAD_SCHOOL_DIRNAME: string;
     };
   }
 }
@@ -50,9 +50,9 @@ const schema = {
       pattern: '^(?!.*\\.{2}).*$',
       default: 'uploads'
     },
-    UPLOAD_TASKS_DIRNAME: {
+    UPLOAD_SCHOOL_DIRNAME: {
       type: 'string',
-      default: 'tasks'
+      default: 'school-logos'
     }
   }
 }
