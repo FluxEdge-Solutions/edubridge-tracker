@@ -2,7 +2,7 @@ import {
     type FastifyPluginAsyncTypebox,
     Type
 } from '@fastify/type-provider-typebox'
-import { CredentialsSchema } from '../../schemas/auth.js'
+import { CredentialsSchema } from '../../../schemas/auth.js'
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
     const { usersRepository, passwordManager } = fastify

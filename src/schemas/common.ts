@@ -12,5 +12,6 @@ export const EmailSchema = Type.String({
 })
 
 export const DateTimeSchema = Type.String({ format: 'date-time' })
+export const DateSchema = Type.String({ format: "date" })
 
 export const IdSchema = Type.Integer({ minimum: 1 })

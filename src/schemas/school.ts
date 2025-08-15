@@ -1,19 +1,24 @@
 import { type Static, Type } from '@sinclair/typebox'
-import { DateTimeSchema, StringSchema } from './common.js'
+import { StringSchema, IdSchema, DateSchema } from './common.js'
 
 export const SchoolSchema = Type.Object({
+    id: IdSchema,
     name: StringSchema,
     base_url: StringSchema,
     logo_url: StringSchema,
-    date_onboard: DateTimeSchema
+    date_onboard: StringSchema
 })
 
-export interface SchoolDetils extends Static<typeof SchoolSchema> {}
+export interface School extends Static<typeof SchoolSchema> { }
 
-export interface School {
-    id: number,
-    name: string,
-    base_url: string,
-    logo_url: string,
-    date_onboard: Date
-}
+export const CreateSchoolSchema = Type.Object({
+    name: StringSchema,
+    base_url: StringSchema,
+    date_onboard: StringSchema
+})
+
+export const UpdateSchoolSchema = Type.Object({
+    name: Type.Optional(StringSchema),
+    base_url: Type.Optional(StringSchema),
+    date_onboard: Type.Optional(StringSchema),
+}) 
